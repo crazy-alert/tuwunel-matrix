@@ -65,7 +65,6 @@ services:
     volumes:
       - unbound_data:/var/lib/unbound     # Данные (кэш, ключи)
       - ./unbound-conf:/etc/unbound/conf.d  # Папка для кастомных конфигов
-      - ./unbound-conf/unbound.conf:/etc/unbound/unbound.conf
     # Не открываем порт 53 наружу (только для внутренних контейнеров)
     expose:
       - "53/udp"
