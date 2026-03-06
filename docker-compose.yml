@@ -53,6 +53,7 @@ services:
     dns:
       - 172.20.0.53
 
+
   # --- НОВЫЙ СЕРВИС: Unbound DNS ---
   unbound:
     image: ghcr.io/rafaelperoco/unbound:latest  # Легкий образ Unbound [citation:1]
