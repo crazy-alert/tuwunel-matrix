@@ -67,6 +67,13 @@ mkdir /opt/tuwunel-matrix
 cd /opt/tuwunel-matrix
 git clone -v  https://github.com/crazy-alert/tuwunel-matrix.git .
 ```
+
+Скопируйте файлы примеры конфигурации:
+```bash
+cp Caddyfile.example Caddyfile
+cp tuwunel.toml.example tuwunel.toml
+```
+---
 ### 2. Отредактируйте tuwunel.toml
 ```bash 
 nano tuwunel.toml
