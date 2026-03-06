@@ -61,11 +61,16 @@ server_name = "chat.пример.ру"
 
 ### 1. Клонируйте репозиторий и перейдите в него
 
+Создать директорию в которую установим, например `/opt/tuwunel-matrix`, перейти в неё и скопировать этот репозиторий в неё
 ```bash
-git clone <url-вашего-репозитория>
-cd <имя-папки>
+mkdir /opt/tuwunel-matrix
+cd /opt/tuwunel-matrix
+git clone -v  https://github.com/crazy-alert/tuwunel-matrix.git .
 ```
 ### 2. Отредактируйте tuwunel.toml
+```bash 
+nano tuwunel.toml
+```
 Это главный конфиг сервера. Обязательно замените:
 server_name – ваш домен (например, `matrix.example.ru`).
 Параметры подключения к БД: укажите тот же пароль, что и в ```docker-compose.yml```.
@@ -90,6 +95,10 @@ token = "сюда_вставьте_сгенерированный_токен"
 ⚠️ Не забудьте после создания первого администратора отключить регистрацию – закомментировать или удалить секцию [registration].
 
 ### 3. Отредактируйте Caddyfile
+
+```bash
+nano Caddyfile
+```
 Укажите ваш домен вместо matrix.ваш-домен.ru:
 
 ```text
@@ -104,7 +113,10 @@ matrix.ваш-домен.ru:8448 {
 Caddy сам получит SSL‑сертификаты от Lets Encrypt.
 
 ### 4. (Опционально) Настройте Unbound
-По умолчанию Unbound будет работать как рекурсивный резолвер. Для ускорения работы в российских реалиях можно добавить форвардеры с DNS‑over‑TLS. Создайте файл ```unbound-conf/99-local.conf```:
+(уже сделано) По умолчанию Unbound будет работать как рекурсивный резолвер. Для ускорения работы в российских реалиях можно добавить форвардеры с DNS‑over‑TLS. Создайте файл ```unbound-conf/99-local.conf```:
+```bash
+unbound-conf/99-local.conf
+```
 
 ```conf
 server:
@@ -123,6 +135,9 @@ forward-zone:
 Если не хотите использовать внешние форвардеры, оставьте файл пустым – Unbound будет ходить в корневые DNS‑серверы напрямую.
 
 ### 5. Установите пароль БД в ```docker-compose.yml```
+```bash
+nano docker-compose.yml
+```
 Найдите в файле ```docker-compose.yml``` переменную окружения ```POSTGRES_PASSWORD``` и замените "ваш_пароль_базы_данных" на реальный пароль (тот же, что в tuwunel.toml).
 
 ### 🚀 Запуск сервера
@@ -131,6 +146,17 @@ forward-zone:
 ```bash
 docker-compose up -d
 ```
+Если появилась ошибка
+`Command 'docker-compose' not found, but can be installed with:
+apt install docker-compose` - значит не установлен docker, устанавливаем командой:
+```bash
+apt install docker-compose
+```
+После чего снова пытаемся запустить:
+```bash
+docker-compose up -d
+```
+
 Через минуту все контейнеры будут запущены. Проверьте логи:
 ```bash
 docker-compose logs -f
