@@ -29,7 +29,6 @@ services:
       - ./tuwunel-data:/var/lib/tuwunel
     networks:
       - internal
-    # ВАЖНО: заставляем контейнер Tuwunel использовать наш Unbound как DNS-сервер
     dns:
       - 172.20.0.53  # IP нашего Unbound (должен совпадать с IP в сети internal)
 
@@ -54,24 +53,23 @@ services:
       - 172.20.0.53
 
 
-  # --- НОВЫЙ СЕРВИС: Unbound DNS ---
   unbound:
-    image: ghcr.io/rafaelperoco/unbound:latest  # Легкий образ Unbound [citation:1]
+    image: ghcr.io/rafaelperoco/unbound:latest
     container_name: tuwunel-unbound
     restart: unless-stopped
     networks:
       internal:
-        ipv4_address: 172.20.0.53  # Фиксированный IP в нашей внутренней сети
+        ipv4_address: 172.20.0.53   # фиксированный IP для DNS
     volumes:
-      - unbound_data:/var/lib/unbound     # Данные (кэш, ключи)
-      - ./unbound-conf:/etc/unbound/conf.d  # Папка для кастомных конфигов
-    # Не открываем порт 53 наружу (только для внутренних контейнеров)
+      # Монтируем папку с пользовательскими конфигами в правильное место
+      - ./unbound-conf:/etc/unbound/conf.d:ro
+      # Том для постоянных данных (кэш, ключи DNSSEC)
+      - ./unbound_data:/var/lib/unbound
     expose:
       - "53/udp"
       - "53/tcp"
-    # Опционально: проверка здоровья
     healthcheck:
-      test: ["CMD", "drill", "@127.0.0.1", "dnssec.works"]
+      test: ["CMD", "unbound-control", "status"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -81,9 +79,8 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16  # Явно задаем подсеть, чтобы зарезервировать IP для Unbound
+        - subnet: 172.20.0.0/16    # подсеть, в которой живёт Unbound
 
 volumes:
   caddy_data:
   caddy_config:
-  unbound_data:
