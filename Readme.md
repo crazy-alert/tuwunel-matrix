@@ -150,16 +150,16 @@ docker-compose up -d
 `Command 'docker-compose' not found, but can be installed with:
 apt install docker-compose` - значит не установлен docker, устанавливаем командой:
 ```bash
-apt install docker-compose
+apt install docker compose
 ```
 После чего снова пытаемся запустить:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Через минуту все контейнеры будут запущены. Проверьте логи:
 ```bash
-docker-compose logs -f
+docker compose logs -f
 ```
 Если всё хорошо, вы увидите, что Caddy получил сертификаты, а Tuwunel подключился к БД.
 
@@ -172,9 +172,9 @@ docker-compose logs -f
 4. После успешной регистрации этот пользователь автоматически станет глобальным администратором.
 
 Теперь можно отключить открытую регистрацию:
-* Остановите стек: ```docker-compose down```
+* Остановите стек: ```docker compose down```
 * В ```tuwunel.toml``` закомментируйте или удалите секцию ```[registration]```
-* Запустите снова: ```docker-compose up -d```
+* Запустите снова: ```docker compose up -d```
 
 Регистрация новых пользователей теперь возможна только через пригласительные токены, которые вы можете создавать прямо из Matrix‑комнаты администратора (#admins). Например, команда:
 
@@ -193,11 +193,11 @@ sudo ss -tulpn | grep LISTEN
 Должны быть видны только :80, :443 и :8448.
 
 ### 📦 Управление стеком
-* Остановить: ```docker-compose down```
-* Запустить: ```docker-compose up -d```
-* Перезапустить конкретный сервис: ```docker-compose restart tuwunel```
-* Посмотреть логи: ```docker-compose logs -f [имя_сервиса]```
-* Обновить образы: ```docker-compose pull && docker-compose up -d```
+* Остановить: ```docker compose down```
+* Запустить: ```docker compose up -d```
+* Перезапустить конкретный сервис: ```docker compose restart tuwunel```
+* Посмотреть логи: ```docker compose logs -f [имя_сервиса]```
+* Обновить образы: ```docker compose pull && docker compose up -d```
 
 ### ❓ Часто задаваемые вопросы
 #### ❔ Как сгенерировать секретный токен?
@@ -211,7 +211,7 @@ openssl rand -hex 32
 Убедитесь, что в ```docker-compose.yml``` у сервисов ```tuwunel``` и ```caddy``` прописана опция ``` dns: 172.20.0.53```. Проверьте, что Unbound запустился:
 
 ```bash
-docker-compose logs unbound
+docker compose logs unbound
 ```
 Если нужна отладка, зайдите внутрь контейнера Unbound:
 
