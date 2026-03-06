@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tuwunel-db
+    restart: unless-stopped
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: tuwunel
+      POSTGRES_USER: tuwunel_user
+      POSTGRES_PASSWORD: "ваш_пароль_базы_данных"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tuwunel_user -d tuwunel"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tuwunel:
+    image: ghcr.io/matrix-construct/tuwunel:latest
+    container_name: tuwunel
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./tuwunel.toml:/etc/tuwunel.toml:ro
+      - ./tuwunel-data:/var/lib/tuwunel
+    networks:
+      - internal
+    # ВАЖНО: заставляем контейнер Tuwunel использовать наш Unbound как DNS-сервер
+    dns:
+      - 172.20.0.53  # IP нашего Unbound (должен совпадать с IP в сети internal)
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: tuwunel-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8448:8448"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - internal
+    depends_on:
+      - tuwunel
+    # Caddy тоже пусть ходит за DNS к Unbound (необязательно, но полезно)
+    dns:
+      - 172.20.0.53
+
+  # --- НОВЫЙ СЕРВИС: Unbound DNS ---
+  unbound:
+    image: ghcr.io/rafaelperoco/unbound:latest  # Легкий образ Unbound [citation:1]
+    container_name: tuwunel-unbound
+    restart: unless-stopped
+    networks:
+      internal:
+        ipv4_address: 172.20.0.53  # Фиксированный IP в нашей внутренней сети
+    volumes:
+      - ./unbound-conf:/etc/unbound/conf.d  # Папка для кастомных конфигов
+      - ./unbound-data:/var/lib/unbound     # Данные (кэш, ключи)
+    # Не открываем порт 53 наружу (только для внутренних контейнеров)
+    expose:
+      - "53/udp"
+      - "53/tcp"
+    # Опционально: проверка здоровья
+    healthcheck:
+      test: ["CMD", "drill", "@127.0.0.1", "dnssec.works"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16  # Явно задаем подсеть, чтобы зарезервировать IP для Unbound
+
+volumes:
+  caddy_data:
+  caddy_config:

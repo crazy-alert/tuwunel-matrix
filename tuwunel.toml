@@ -1,0 +1,14 @@
+server_name = "matrix.ваш-домен.ru"   # замените на ваш домен
+
+[database]
+backend = "postgres"
+uri = "postgres://tuwunel_user:ваш_пароль_базы_данных@postgres:5432/tuwunel"
+
+[global]
+address = "0.0.0.0:8008"              # слушаем внутри контейнера
+media_directory = "/var/lib/tuwunel/media"
+
+# Разрешаем регистрацию только по токену (для создания первого админа)
+[registration]
+enabled = true
+token = "мой_супер_секретный_токен_123"   # замените на сгенерированный

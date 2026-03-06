@@ -1,0 +1,7 @@
+matrix.ваш-домен.ru {
+    reverse_proxy tuwunel:8008
+}
+
+matrix.ваш-домен.ru:8448 {
+    reverse_proxy tuwunel:8008
+}
