@@ -32,17 +32,15 @@ services:
       - ${UNBOUND_IP}
     environment:
       - TUWUNEL_CONFIG=/dev/null
-      # Используем переменные окружения для конфигурации Tuwunel
       - TUWUNEL_SERVER_NAME=${SERVER_NAME}
       - TUWUNEL_DATABASE__BACKEND=postgres
-      # Важно! Используем двойное подчёркивание для вложенных полей, как в документации [citation:2][citation:5]
-      - TUWUNEL_DATABASE__URI=${TUWUNEL_DATABASE_URI}
+      - TUWUNEL_DATABASE__URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - TUWUNEL_GLOBAL__ADDRESS=${TUWUNEL_ADDRESS}
-      - TUWUNEL_GLOBAL__MEDIA_DIRECTORY=${TUWUNEL_MEDIA_DIR}
+      - TUWUNEL_GLOBAL__MEDIA_DIRECTORY=/var/lib/tuwunel/media
       - TUWUNEL_REGISTRATION__ENABLED=${TUWUNEL_REGISTRATION_ENABLED}
       - TUWUNEL_REGISTRATION__TOKEN=${TUWUNEL_REGISTRATION_TOKEN}
       - TUWUNEL_TLS__ENABLED=false
-    command: ["-c", "/dev/null"]
+    command: [ "-c", "/dev/null", "-O", "global.address=\"0.0.0.0:8008\"" ]
 
   caddy:
     image: caddy:2-alpine
