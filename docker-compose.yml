@@ -6,13 +6,13 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: tuwunel
-      POSTGRES_USER: tuwunel_user
-      POSTGRES_PASSWORD: "ghg6Random"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tuwunel_user -d tuwunel"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,12 +25,22 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./tuwunel.toml:/etc/tuwunel.toml:ro
       - ./tuwunel-data:/var/lib/tuwunel
     networks:
       - internal
     dns:
-      - 172.20.0.53  # IP нашего Unbound (должен совпадать с IP в сети internal)
+      - ${UNBOUND_IP}
+    environment:
+      # Используем переменные окружения для конфигурации Tuwunel
+      - TUWUNEL_SERVER_NAME=${SERVER_NAME}
+      - TUWUNEL_DATABASE__BACKEND=postgres
+      # Важно! Используем двойное подчёркивание для вложенных полей, как в документации [citation:2][citation:5]
+      - TUWUNEL_DATABASE__URI=${TUWUNEL_DATABASE_URI}
+      - TUWUNEL_GLOBAL__ADDRESS=${TUWUNEL_ADDRESS}
+      - TUWUNEL_GLOBAL__MEDIA_DIRECTORY=${TUWUNEL_MEDIA_DIR}
+      - TUWUNEL_REGISTRATION__ENABLED=${TUWUNEL_REGISTRATION_ENABLED}
+      - TUWUNEL_REGISTRATION__TOKEN=${TUWUNEL_REGISTRATION_TOKEN}
+      - TUWUNEL_TLS__ENABLED=false
 
   caddy:
     image: caddy:2-alpine
@@ -40,17 +50,16 @@ services:
       - "80:80"
       - "443:443"
       - "8448:8448"
+    env_file: .env
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy-config:/etc/caddy
     networks:
       - internal
     depends_on:
       - tuwunel
-    # Caddy тоже пусть ходит за DNS к Unbound (необязательно, но полезно)
     dns:
-      - 172.20.0.53
+      - ${UNBOUND_IP}
 
 
   unbound:
@@ -59,17 +68,15 @@ services:
     restart: unless-stopped
     networks:
       internal:
-        ipv4_address: 172.20.0.53   # фиксированный IP для DNS
+        ipv4_address: ${UNBOUND_IP}
     volumes:
-      # Монтируем папку с пользовательскими конфигами в правильное место
       - ./unbound-conf:/etc/unbound/conf.d:ro
-      # Том для постоянных данных (кэш, ключи DNSSEC)
       - ./unbound_data:/var/lib/unbound
     expose:
       - "53/udp"
       - "53/tcp"
     healthcheck:
-      test: ["CMD", "unbound-control", "status"]
+      test: [ "CMD", "unbound-control", "status" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -79,8 +86,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16    # подсеть, в которой живёт Unbound
+        - subnet: ${DOCKER_SUBNET}
 
 volumes:
   caddy_data:
-  caddy_config:

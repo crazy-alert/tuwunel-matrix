@@ -1,16 +1,16 @@
-matrix.ваш-домен.ru {
+{$SERVER_NAME}{
     reverse_proxy tuwunel:8008
 }
 
-matrix.ваш-домен.ru:8448 {
+{$SERVER_NAME}:8448 {
     reverse_proxy tuwunel:8008
 }
 # НОВЫЙ БЛОК для основного домена
-ваш-домен.ru {
+{$SERVER_NAME}{
 # Проксируем только запросы к .well-known/matrix на сервер Tuwunel
     handle_path /.well-known/matrix/* {
-                                          reverse_proxy tuwunel:8008
-                                      }
+      reverse_proxy tuwunel:8008
+    }
 
 # Для всех остальных запросов на основной домен можно отдавать что-то еще,
 # например, заглушку или перенаправлять на поддомен.
