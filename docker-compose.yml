@@ -31,6 +31,7 @@ services:
     dns:
       - ${UNBOUND_IP}
     environment:
+      - TUWUNEL_CONFIG=/dev/null
       # Используем переменные окружения для конфигурации Tuwunel
       - TUWUNEL_SERVER_NAME=${SERVER_NAME}
       - TUWUNEL_DATABASE__BACKEND=postgres
