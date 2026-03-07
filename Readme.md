@@ -42,6 +42,8 @@ git clone -v  https://github.com/crazy-alert/tuwunel-matrix.git .
 cp .env.example .env &&
 nano .env
 ```
+В редакторе nao сочетания кнопок: `Ctrl+o` - сохранить (после нажать Enter), `Ctrl+x` - закрыть
+
 Это главный конфиг сервера. Обязательно замените:
 server_name – ваш домен (например, `matrix.example.ru`).
 

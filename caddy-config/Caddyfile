@@ -1,19 +1,10 @@
-{$SERVER_NAME}{
-    reverse_proxy tuwunel:8008
-}
-
 {$SERVER_NAME}:8448 {
     reverse_proxy tuwunel:8008
 }
-# НОВЫЙ БЛОК для основного домена
-{$SERVER_NAME}{
-# Проксируем только запросы к .well-known/matrix на сервер Tuwunel
-    handle_path /.well-known/matrix/* {
-      reverse_proxy tuwunel:8008
-    }
 
-# Для всех остальных запросов на основной домен можно отдавать что-то еще,
-# например, заглушку или перенаправлять на поддомен.
-# Если ничего не указать, Caddy вернет 404, что нормально.
+{$SERVER_NAME} {
+    handle /.well-known/matrix/* {
+        reverse_proxy tuwunel:8008
+    }
     respond 404
 }
