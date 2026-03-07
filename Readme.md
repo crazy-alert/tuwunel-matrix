@@ -106,7 +106,7 @@ sudo ss -tulpn | grep LISTEN
 * Запустить: ```docker compose up -d```
 * Перезапустить конкретный сервис: ```docker compose restart tuwunel```
 * Посмотреть логи: ```docker compose logs -f [имя_сервиса]```
-* Обновить образы: ```docker compose pull && docker compose up -d```
+* Остановить, обновить образы, запустить: ```docker compose down && docker compose pull && docker compose up -d```
 
 ### ❓ Часто задаваемые вопросы
 ####❔ Почему Unbound не работает / не резолвит?
