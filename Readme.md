@@ -32,14 +32,14 @@
 
 Создать директорию в которую установим, например `/opt/tuwunel-matrix`, перейти в неё и скопировать этот репозиторий в неё
 ```bash
-mkdir /opt/tuwunel-matrix
-cd /opt/tuwunel-matrix
+mkdir /opt/tuwunel-matrix &&
+cd /opt/tuwunel-matrix &&
 git clone -v  https://github.com/crazy-alert/tuwunel-matrix.git .
 ```
 
 Скопируйте файл примеры конфигурации и отредактируйте его:
 ```bash
-cp .env.example .env
+cp .env.example .env &&
 nano .env
 ```
 Это главный конфиг сервера. Обязательно замените:
