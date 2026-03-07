@@ -41,7 +41,7 @@ services:
       - TUWUNEL_REGISTRATION__ENABLED=${TUWUNEL_REGISTRATION_ENABLED}
       - TUWUNEL_REGISTRATION__TOKEN=${TUWUNEL_REGISTRATION_TOKEN}
       - TUWUNEL_TLS__ENABLED=false
-    command: []
+    command: ["-c", "/dev/null"]
 
   caddy:
     image: caddy:2-alpine
